@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAN-TECH Learning Management Systems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.11.4/dist/gsap.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        
+        .hero-section {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .login-form {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+        }
+        
+        .preview-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .preview-iframe {
+            flex-grow: 1;
+            border: none;
+        }
+        
+        .preview-header {
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-options {
+            display: none;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 1rem;
+            border-radius: 0 0 16px 16px;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .floating {
+            animation: floating 6s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating-delay-1 {
+            animation-delay: 1s;
+        }
+        
+        .floating-delay-2 {
+            animation-delay: 2s;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .section {
+            scroll-margin-top: 100px;
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+        }
+        
+        .scroll-down {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+        
+        .cube {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            transform-style: preserve-3d;
+            animation: rotate 20s infinite linear;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+        
+        .cube-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .cube-face:nth-child(1) { transform: rotateY(0deg) translateZ(100px); }
+        .cube-face:nth-child(2) { transform: rotateY(90deg) translateZ(100px); }
+        .cube-face:nth-child(3) { transform: rotateY(180deg) translateZ(100px); }
+        .cube-face:nth-child(4) { transform: rotateY(270deg) translateZ(100px); }
+        .cube-face:nth-child(5) { transform: rotateX(90deg) translateZ(100px); }
+        .cube-face:nth-child(6) { transform: rotateX(270deg) translateZ(100px); }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border-radius: 8px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 101;
+        }
+        
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 3px solid #3b82f6;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        
+        .loader::after {
+            content: '';  
+            box-sizing: border-box;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-bottom-color: #8b5cf6;
+        }
+            
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: -1;
+            opacity: 0.6;
+        }
+        
+        .blob-1 {
+            top: 20%;
+            left: 10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(59, 130, 246, 0.3);
+            animation: blob-move 15s infinite alternate;
+        }
+        
+        .blob-2 {
+            bottom: 20%;
+            right: 10%;
+            width: 250px;
+            height: 250px;
+            background: rgba(139, 92, 246, 0.3);
+            animation: blob-move 20s infinite alternate-reverse;
+        }
+        
+        @keyframes blob-move {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(50px, -50px) scale(1.1);
+            }
+            66% {
+                transform: translate(-30px, 50px) scale(0.9);
+            }
+            100% {
+                transform: translate(30px, 30px) scale(1);
+            }
+        }
+        
+        .clip-path-card {
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%);
+        }
+        
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 120px;
+            background-color: rgba(15, 23, 42, 0.9);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgba(15, 23, 42, 0.9) transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="notification" class="notification">
+        <span id="notification-text">Copied to clipboard!</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-2 shadow-lg shadow-blue-500/20">
+                            <span class="text-white font-bold text-xl">G</span>
+                        </div>
+                        <span class="text-2xl font-bold gradient-text">GAN-TECH</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#home" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-white">Home</a>
+                            <a href="#features" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Features</a>
+                            <a href="#showcase" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Showcase</a>
+                            <a href="#contact" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white">Contact</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <button class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-full text-sm font-medium transition duration-300 shadow-lg shadow-blue-600/20">
+                            Get Started
+                        </button>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-white">Home</a>
+                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white">Features</a>
+                <a href="#showcase" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white">Showcase</a>
+                <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white">Contact</a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-700">
+                <div class="flex items-center px-5">
+                    <button class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300">
+                        Get Started
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section section">
+        <div class="canvas-container" id="canvas"></div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="hero-content container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                            Revolutionizing <span class="gradient-text">Education</span> with Advanced LMS Solutions
+                        </h1>
+                        <p class="text-lg md:text-xl text-gray-300 mb-8">
+                            Discover the future of learning management with our cutting-edge platforms designed for schools, universities, and corporate training.
+                        </p>
+                        <div class="flex flex-wrap gap-4">
+                            <button class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition duration-300 flex items-center shadow-lg shadow-blue-600/20">
+                                <i class="fas fa-play-circle mr-2"></i> Watch Demo
+                            </button>
+                            <button class="bg-transparent hover:bg-slate-800 text-white px-6 py-3 rounded-lg text-sm font-medium transition duration-300 border border-slate-600 flex items-center">
+                                <i class="fas fa-book-open mr-2"></i> Learn More
+                            </button>
+                        </div>
+                    </div>
+                    <div class="relative hidden md:block">
+                        <div class="cube">
+                            <div class="cube-face">
+                                <i class="fas fa-graduation-cap text-4xl text-blue-400"></i>
+                            </div>
+                            <div class="cube-face">
+                                <i class="fas fa-chalkboard-teacher text-4xl text-purple-400"></i>
+                            </div>
+                            <div class="cube-face">
+                                <i class="fas fa-book text-4xl text-blue-400"></i>
+                            </div>
+                            <div class="cube-face">
+                                <i class="fas fa-laptop-code text-4xl text-purple-400"></i>
+                            </div>
+                            <div class="cube-face">
+                                <i class="fas fa-users text-4xl text-blue-400"></i>
+                            </div>
+                            <div class="cube-face">
+                                <i class="fas fa-certificate text-4xl text-purple-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-down">
+            <a href="#features" class="text-white animate-bounce">
+                <i class="fas fa-chevron-down text-2xl"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 section bg-slate-900 relative">
+        <div class="blob blob-1" style="left: 60%; top: 30%;"></div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="inline-block bg-blue-500/20 text-blue-400 px-4 py-1 rounded-full text-sm font-medium mb-4">Innovative Features</span>
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">
+                    Powerful <span class="gradient-text">Features</span> for Modern Education
+                </h2>
+                <p class="text-lg text-gray-400 max-w-3xl mx-auto">
+                    Our learning management systems come packed with everything you need to deliver exceptional educational experiences.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card p-8 hover:border-blue-500 transition duration-300">
+                    <div class="feature-icon mx-auto">
+                        <i class="fas fa-user-graduate text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-center">Student Management</h3>
+                    <p class="text-gray-400 text-center">
+                        Comprehensive tools to track student progress, attendance, and performance with detailed analytics.
+                    </p>
+                </div>
+                
+                <div class="card p-8 hover:border-purple-500 transition duration-300">
+                    <div class="feature-icon mx-auto" style="background: linear-gradient(135deg, #8b5cf6, #d946ef);">
+                        <i class="fas fa-chalkboard-teacher text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-center">Instructor Dashboard</h3>
+                    <p class="text-gray-400 text-center">
+                        Intuitive interface for instructors to create courses, manage content, and interact with students.
+                    </p>
+                </div>
+                
+                <div class="card p-8 hover:border-blue-500 transition duration-300">
+                    <div class="feature-icon mx-auto">
+                        <i class="fas fa-tasks text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-center">Course Management</h3>
+                    <p class="text-gray-400 text-center">
+                        Easily create, organize, and deliver courses with multimedia support and interactive elements.
+                    </p>
+                </div>
+                
+                <div class="card p-8 hover:border-purple-500 transition duration-300">
+                    <div class="feature-icon mx-auto" style="background: linear-gradient(135deg, #8b5cf6, #d946ef);">
+                        <i class="fas fa-certificate text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-center">Certification</h3>
+                    <p class="text-gray-400 text-center">
+                        Automatically generate and issue certificates upon course completion with customizable templates.
+                    </p>
+                </div>
+                
+                <div class="card p-8 hover:border-blue-500 transition duration-300">
+                    <div class="feature-icon mx-auto">
+                        <i class="fas fa-comments text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-center">Communication Tools</h3>
+                    <p class="text-gray-400 text-center">
+                        Built-in messaging, forums, and announcement systems to keep everyone connected.
+                    </p>
+                </div>
+                
+                <div class="card p-8 hover:border-purple-500 transition duration-300">
+                    <div class="feature-icon mx-auto" style="background: linear-gradient(135deg, #8b5cf6, #d946ef);">
+                        <i class="fas fa-chart-line text-3xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-center">Advanced Analytics</h3>
+                    <p class="text-gray-400 text-center">
+                        Powerful reporting tools to track engagement, performance, and ROI of your educational programs.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Showcase Section -->
+    <section id="showcase" class="py-20 section bg-slate-800 relative">
+        <div class="blob blob-2" style="right: 60%; bottom: 30%;"></div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="inline-block bg-purple-500/20 text-purple-400 px-4 py-1 rounded-full text-sm font-medium mb-4">Interactive Demos</span>
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">
+                    Our <span class="gradient-text">Solutions</span>
+                </h2>
+                <p class="text-lg text-gray-400 max-w-3xl mx-auto">
+                    Explore our premium learning management systems with interactive previews.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- System 1 -->
+                <div class="card overflow-hidden transform transition duration-500 hover:scale-105">
+                    <div class="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 opacity-80"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center">
+                                <i class="fas fa-graduation-cap text-3xl text-white"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white z-10 mt-16">GAN-TECH School1</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex mb-4">
+                            <span class="bg-blue-500/20 text-blue-500 text-xs px-2 py-1 rounded mr-2">Featured</span>
+                            <span class="bg-purple-500/20 text-purple-500 text-xs px-2 py-1 rounded">Multi-role</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">
+                            Premium all-in-one learning solution with advanced course management, student tracking, and instructor tools.
+                        </p>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="showPreview('skillgro')" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center shadow-lg shadow-blue-600/20">
+                                <i class="fas fa-eye mr-2"></i> Preview Demo
+                            </button>
+                            <button onclick="toggleLoginOptions('skillgro')" class="bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center">
+                                <i class="fas fa-sign-in-alt mr-2"></i> Demo Credentials
+                            </button>
+                        </div>
+                        <div id="skillgro-login-options" class="login-options mt-4 rounded-lg">
+                            <div class="mb-3 p-3 bg-white/5 rounded-lg">
+                                <h4 class="font-bold text-blue-400 mb-2 flex items-center">
+                                    <i class="fas fa-user-shield mr-2"></i> Admin Access
+                                </h4>
+                                <div class="flex justify-between items-center">
+                                    <p class="text-sm text-gray-300">admin@gmail.com</p>
+                                    <button onclick="copyToClipboard('admin@gmail.com')" class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded hover:bg-blue-500/30 transition tooltip">
+                                        <i class="fas fa-copy mr-1"></i> Copy
+                                        <span class="tooltip-text">Copy to clipboard</span>
+                                    </button>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <p class="text-sm text-gray-300">Password: 1234</p>
+                                    <button onclick="copyToClipboard('1234')" class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded hover:bg-blue-500/30 transition tooltip">
+                                        <i class="fas fa-copy mr-1"></i> Copy
+                                        <span class="tooltip-text">Copy to clipboard</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3 p-3 bg-white/5 rounded-lg">
+                                <h4 class="font-bold text-green-400 mb-2 flex items-center">
+                                    <i class="fas fa-user-graduate mr-2"></i> Student Access
+                                </h4>
+                                <div class="flex justify-between items-center">
+                                    <p class="text-sm text-gray-300">student@gmail.com</p>
+                                    <button onclick="copyToClipboard('student@gmail.com')" class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded hover:bg-green-500/30 transition tooltip">
+                                        <i class="fas fa-copy mr-1"></i> Copy
+                                        <span class="tooltip-text">Copy to clipboard</span>
+                                    </button>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <p class="text-sm text-gray-300">Password: 1234</p>
+                                    <button onclick="copyToClipboard('1234')" class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded hover:bg-green-500/30 transition tooltip">
+                                        <i class="fas fa-copy mr-1"></i> Copy
+                                        <span class="tooltip-text">Copy to clipboard</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-white/5 rounded-lg">
+                                <h4 class="font-bold text-purple-400 mb-2 flex items-center">
+                                    <i class="fas fa-chalkboard-teacher mr-2"></i> Instructor Access
+                                </h4>
+                                <div class="flex justify-between items-center">
+                                    <p class="text-sm text-gray-300">instructor@gmail.com</p>
+                                    <button onclick="copyToClipboard('instructor@gmail.com')" class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded hover:bg-purple-500/30 transition tooltip">
+                                        <i class="fas fa-copy mr-1"></i> Copy
+                                        <span class="tooltip-text">Copy to clipboard</span>
+                                    </button>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <p class="text-sm text-gray-300">Password: 1234</p>
+                                    <button onclick="copyToClipboard('1234')" class="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded hover:bg-purple-500/30 transition tooltip">
+                                        <i class="fas fa-copy mr-1"></i> Copy
+                                        <span class="tooltip-text">Copy to clipboard</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System 2 -->
+                <div class="card overflow-hidden transform transition duration-500 hover:scale-105">
+                    <div class="relative h-48 bg-gradient-to-r from-pink-500 to-orange-500 flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-pink-500 to-orange-500 opacity-80"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center">
+                                <i class="fas fa-laptop-code text-3xl text-white"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white z-10 mt-16">GAN-TECH School2</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex mb-4">
+                            <span class="bg-pink-500/20 text-pink-500 text-xs px-2 py-1 rounded mr-2">Comprehensive</span>
+                            <span class="bg-orange-500/20 text-orange-500 text-xs px-2 py-1 rounded">Interactive</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">
+                            Complete education management platform with powerful administrative tools and interactive learning modules.
+                        </p>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="showPreview('infix')" class="bg-gradient-to-r from-pink-600 to-orange-600 hover:from-pink-700 hover:to-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center shadow-lg shadow-pink-600/20">
+                                <i class="fas fa-eye mr-2"></i> Preview Demo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System 3 -->
+                <div class="card overflow-hidden transform transition duration-500 hover:scale-105">
+                    <div class="relative h-48 bg-gradient-to-r from-cyan-500 to-emerald-500 flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-emerald-500 opacity-80"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center">
+                                <i class="fas fa-university text-3xl text-white"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white z-10 mt-16">GAN-TECH School3</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex mb-4">
+                            <span class="bg-cyan-500/20 text-cyan-500 text-xs px-2 py-1 rounded mr-2">Premium</span>
+                            <span class="bg-emerald-500/20 text-emerald-500 text-xs px-2 py-1 rounded">E-learning</span>
+                        </div>
+                        <p class="text-gray-400 mb-4">
+                            Advanced educational platform with content management, e-commerce capabilities, and powerful learning tools.
+                        </p>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="showPreview('masterstudy')" class="bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-700 hover:to-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-300 flex items-center shadow-lg shadow-cyan-600/20">
+                                <i class="fas fa-eye mr-2"></i> Preview Demo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Preview Containers -->
+    <div id="skillgro-preview" class="preview-container">
+        <div class="preview-header">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-2 shadow-lg shadow-blue-500/20">
+                    <span class="text-white font-bold text-sm">G</span>
+                </div>
+                <h3 class="text-white font-bold">GAN-TECH School1 Preview</h3>
+            </div>
+            <div class="flex items-center">
+                <button onclick="toggleFullscreen()" class="text-white bg-blue-600/30 hover:bg-blue-600/50 px-3 py-1 rounded-md mr-2">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button onclick="hidePreview()" class="text-white bg-red-600/80 hover:bg-red-600 px-3 py-1 rounded-md flex items-center">
+                    <i class="fas fa-times mr-1"></i> Close Preview
+                </button>
+            </div>
+        </div>
+        <div id="skillgro-loading" class="loading-overlay">
+            <span class="loader"></span>
+            <p class="mt-4 text-white text-lg">Loading GAN-TECH School1...</p>
+            <p class="text-gray-400 text-sm mt-2">Please wait while we prepare your demo</p>
+        </div>
+        <iframe id="skillgro-iframe" src="about:blank" class="preview-iframe" onload="hideLoading('skillgro')"></iframe>
+    </div>
+    
+    <div id="infix-preview" class="preview-container">
+        <div class="preview-header">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-pink-500 to-orange-500 rounded-full flex items-center justify-center mr-2 shadow-lg shadow-pink-500/20">
+                    <span class="text-white font-bold text-sm">G</span>
+                </div>
+                <h3 class="text-white font-bold">GAN-TECH School2 Preview</h3>
+            </div>
+            <div class="flex items-center">
+                <button onclick="toggleFullscreen()" class="text-white bg-pink-600/30 hover:bg-pink-600/50 px-3 py-1 rounded-md mr-2">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button onclick="hidePreview()" class="text-white bg-red-600/80 hover:bg-red-600 px-3 py-1 rounded-md flex items-center">
+                    <i class="fas fa-times mr-1"></i> Close Preview
+                </button>
+            </div>
+        </div>
+        <div id="infix-loading" class="loading-overlay">
+            <span class="loader"></span>
+            <p class="mt-4 text-white text-lg">Loading GAN-TECH School2...</p>
+            <p class="text-gray-400 text-sm mt-2">Please wait while we prepare your demo</p>
+        </div>
+        <iframe id="infix-iframe" src="about:blank" class="preview-iframe" onload="hideLoading('infix')"></iframe>
+    </div>
+    
+    <div id="masterstudy-preview" class="preview-container">
+        <div class="preview-header">
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-br from-cyan-500 to-emerald-500 rounded-full flex items-center justify-center mr-2 shadow-lg shadow-cyan-500/20">
+                    <span class="text-white font-bold text-sm">G</span>
+                </div>
+                <h3 class="text-white font-bold">GAN-TECH School3 Preview</h3>
+            </div>
+            <div class="flex items-center">
+                <button onclick="toggleFullscreen()" class="text-white bg-cyan-600/30 hover:bg-cyan-600/50 px-3 py-1 rounded-md mr-2">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button onclick="hidePreview()" class="text-white bg-red-600/80 hover:bg-red-600 px-3 py-1 rounded-md flex items-center">
+                    <i class="fas fa-times mr-1"></i> Close Preview
+                </button>
+            </div>
+        </div>
+        <div id="masterstudy-loading" class="loading-overlay">
+            <span class="loader"></span>
+            <p class="mt-4 text-white text-lg">Loading GAN-TECH School3...</p>
+            <p class="text-gray-400 text-sm mt-2">Please wait while we prepare your demo</p>
+        </div>
+        <iframe id="masterstudy-iframe" src="about:blank" class="preview-iframe" onload="hideLoading('masterstudy')"></iframe>
+    </div>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-slate-900">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="text-4xl font-bold gradient-text mb-2">15+</div>
+                    <div class="text-gray-400">Years Experience</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold gradient-text mb-2">5M+</div>
+                    <div class="text-gray-400">Students Worldwide</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold gradient-text mb-2">500+</div>
+                    <div class="text-gray-400">Institutions</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold gradient-text mb-2">98%</div>
+                    <div class="text-gray-400">Client Satisfaction</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 section bg-slate-900 relative">
+        <div class="blob blob-1" style="left: 20%; top: 60%;"></div>
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <span class="inline-block bg-green-500/20 text-green-400 px-4 py-1 rounded-full text-sm font-medium mb-4">Reach Out</span>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-4">
+                        Get In <span class="gradient-text">Touch</span>
+                    </h2>
+                    <p class="text-lg text-gray-400">
+                        Have questions about our learning management systems? Contact our team for more information.
+                    </p>
+                </div>
+                
+                <div class="card p-8 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-bl-full"></div>
+                    <form class="space-y-6 relative z-10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Your Name</label>
+                                <input type="text" id="name" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 focus:border-blue-500 focus:outline-none text-white text-base">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
+                                <input type="email" id="email" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 focus:border-blue-500 focus:outline-none text-white text-base">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-300 mb-1">Subject</label>
+                            <input type="text" id="subject" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 focus:border-blue-500 focus:outline-none text-white text-base">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-300 mb-1">Message</label>
+                            <textarea id="message" rows="5" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 focus:border-blue-500 focus:outline-none text-white text-base"></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition duration-300 shadow-lg shadow-blue-600/20">
+                                <i class="fas fa-paper-plane mr-2"></i> Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-2 shadow-lg shadow-blue-500/20">
+                            <span class="text-white font-bold text-xl">G</span>
+                        </div>
+                        <h3 class="text-xl font-bold gradient-text">GAN-TECH</h3>
+                    </div>
+                    <p class="text-gray-400">
+                        Leading provider of innovative learning management solutions for educational institutions and businesses.
+                    </p>
+                    <div class="flex space-x-4 mt-6">
+                        <a href="#" class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-400 transition-all">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-700 transition-all">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-pink-600 transition-all">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">Solutions</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">GAN-TECH School1</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">GAN-TECH School2</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">GAN-TECH School3</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Custom Solutions</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API Reference</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Tutorials</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Blog</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">Contact</h4>
+                    <ul class="space-y-2">
+                        <li class="text-gray-400 flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-2 text-blue-400"></i> 
+                            <span>123 Education St, Tech City, USA</span>
+                        </li>
+                        <li class="text-gray-400 flex items-start">
+                            <i class="fas fa-phone-alt mt-1 mr-2 text-blue-400"></i> 
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li class="text-gray-400 flex items-start">
+                            <i class="fas fa-envelope mt-1 mr-2 text-blue-400"></i> 
+                            <span>info@gantech.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">
+                    &copy; 2023 GAN-TECH Learning. All rights reserved.
+                </p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors">Cookies Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+        
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+        
+        // Demo URL mapping - these are hidden from users
+        const demoUrls = {
+            skillgro: 'https://skillgro.websolutionus.com/',
+            infix: 'https://infixlms.ischooll.com/',
+            masterstudy: 'https://preview.themeforest.net/item/masterstudy-education-center-wordpress-theme/full_screen_preview/12170274'
+        };
+        
+        // Preview functions
+        function showPreview(system) {
+            const previewContainer = document.getElementById(`${system}-preview`);
+            const iframe = document.getElementById(`${system}-iframe`);
+            
+            // Show the container
+            previewContainer.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Show loading indicator
+            document.getElementById(`${system}-loading`).style.display = 'flex';
+            
+            // Set iframe source
+            iframe.src = demoUrls[system];
+        }
+        
+        function hidePreview() {
+            // Hide all preview containers
+            document.querySelectorAll('.preview-container').forEach(container => {
+                container.style.display = 'none';
+                
+                // Clear iframe sources to stop any audio/video
+                const iframe = container.querySelector('iframe');
+                setTimeout(() => {
+                    iframe.src = 'about:blank';
+                }, 100);
+            });
+            
+            document.body.style.overflow = 'auto';
+        }
+        
+        function toggleLoginOptions(system) {
+            const options = document.getElementById(`${system}-login-options`);
+            if (options.style.display === 'block') {
+                gsap.to(options, {
+                    height: 0,
+                    opacity: 0,
+                    duration: 0.3,
+                    onComplete: function() {
+                        options.style.display = 'none';
+                    }
+                });
+            } else {
+                options.style.display = 'block';
+                options.style.height = '0px';
+                options.style.opacity = '0';
+                
+                gsap.to(options, {
+                    height: 'auto',
+                    opacity: 1,
+                    duration: 0.3
+                });
+            }
+        }
+        
+        function hideLoading(system) {
+            const iframe = document.getElementById(`${system}-iframe`);
+            const loadingOverlay = document.getElementById(`${system}-loading`);
+            
+            // Only hide if the iframe has actually loaded content
+            if (iframe.src !== 'about:blank') {
+                gsap.to(loadingOverlay, {
+                    opacity: 0,
+                    duration: 0.5,
+                    onComplete: function() {
+                        loadingOverlay.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                const activePreview = document.querySelector('.preview-container[style*="flex"]');
+                if (activePreview) {
+                    if (activePreview.requestFullscreen) {
+                        activePreview.requestFullscreen();
+                    } else if (activePreview.webkitRequestFullscreen) {
+                        activePreview.webkitRequestFullscreen();
+                    } else if (activePreview.msRequestFullscreen) {
+                        activePreview.msRequestFullscreen();
+                    }
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+        
+        // Copy to clipboard functionality
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                showNotification('Copied to clipboard!');
+            }, function(err) {
+                showNotification('Failed to copy text!', true);
+            });
+        }
+        
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            
+            notificationText.textContent = message;
+            
+            if (isError) {
+                notification.classList.add('bg-red-500');
+                notification.classList.remove('bg-gradient-to-r', 'from-blue-600', 'to-purple-600');
+            } else {
+                notification.classList.remove('bg-red-500');
+                notification.classList.add('bg-gradient-to-r', 'from-blue-600', 'to-purple-600');
+            }
+            
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 3D Background Animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Three.js scene setup
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            document.getElementById('canvas').appendChild(renderer.domElement);
+            
+            // Particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1500;
+            
+            const posArray = new Float32Array(particlesCount * 3);
+            
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 10;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            
+            // Create gradient particles
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.02,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            // Add colors to particles (gradient from blue to purple)
+            const colors = new Float32Array(particlesCount * 3);
+            for (let i = 0; i < particlesCount; i++) {
+                const i3 = i * 3;
+                
+                // Blue to purple gradient
+                colors[i3] = 0.3 + Math.random() * 0.2;           // R (blue to purple mix)
+                colors[i3 + 1] = 0.3 * Math.random();             // G (low for both blue and purple)
+                colors[i3 + 2] = 0.8 + Math.random() * 0.2;       // B (high for blue)
+            }
+            
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            
+            // Camera position
+            camera.position.z = 3;
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                particlesMesh.rotation.x += 0.0003;
+                particlesMesh.rotation.y += 0.0003;
+                
+                // Mouse interaction
+                particlesMesh.position.x = mouseX * 0.0005;
+                particlesMesh.position.y = mouseY * 0.0005;
+                
+                renderer.render(scene, camera);
+            }
+            
+            // Mouse tracking for interactive particle movement
+            let mouseX = 0;
+            let mouseY = 0;
+            
+            document.addEventListener('mousemove', (event) => {
+                mouseX = event.clientX - window.innerWidth / 2;
+                mouseY = -(event.clientY - window.innerHeight / 2);
+            });
+            
+            // Touch tracking for mobile
+            document.addEventListener('touchmove', (event) => {
+                if (event.touches.length > 0) {
+                    mouseX = event.touches[0].clientX - window.innerWidth / 2;
+                    mouseY = -(event.touches[0].clientY - window.innerHeight / 2);
+                    event.preventDefault();
+                }
+            }, { passive: false });
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            // GSAP animations for elements
+            gsap.from('.hero-content h1', {
+                duration: 1,
+                y: 50,
+                opacity: 0,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('.hero-content p', {
+                duration: 1,
+                y: 50,
+                opacity: 0,
+                delay: 0.3,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('.hero-content button', {
+                duration: 1,
+                y: 50,
+                opacity: 0,
+                delay: 0.6,
+                stagger: 0.2,
+                ease: 'power3.out'
+            });
+            
+            gsap.from('.cube', {
+                duration: 1.5,
+                scale: 0.5,
+                opacity: 0,
+                rotationX: 180,
+                ease: 'elastic.out(1, 0.5)'
+            });
+            
+            // Animate sections on scroll
+            const animateSections = () => {
+                const sections = document.querySelectorAll('section:not(.hero-section)');
+                
+                sections.forEach(section => {
+                    const sectionTop = section.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+                    
+                    if (sectionTop < windowHeight * 0.75) {
+                        section.querySelectorAll('.card, h2, p.text-lg, .feature-icon').forEach((element, index) => {
+                            gsap.to(element, {
+                                y: 0,
+                                opacity: 1,
+                                duration: 0.7,
+                                delay: index * 0.1,
+                                ease: 'power2.out'
+                            });
+                        });
+                    }
+                });
+            };
+            
+            // Set initial state for scroll animations
+            document.querySelectorAll('section:not(.hero-section) .card, section:not(.hero-section) h2, section:not(.hero-section) p.text-lg, .feature-icon').forEach(element => {
+                gsap.set(element, {
+                    y: 30,
+                    opacity: 0
+                });
+            });
+            
+            // Listen for scroll events
+            window.addEventListener('scroll', animateSections);
+            
+            // Trigger once on load
+            animateSections();
+        });
+    </script>
+</body>
+</html>
